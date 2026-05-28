@@ -309,9 +309,12 @@ function sendLaravelRequest(path, method, payload) {
   };
 
   const req = client.request(options, (res) => {
+    console.log(`[Gateway -> Laravel] URL: ${parsedUrl.origin}${path}, Status: ${res.statusCode}`);
     res.resume();
   });
-  req.on('error', () => { }); // Ignore offline errors
+  req.on('error', (err) => {
+    console.error(`[Gateway -> Laravel Error] URL: ${parsedUrl.origin}${path}, Error: ${err.message}`);
+  });
   req.write(data);
   req.end();
 }
