@@ -28,13 +28,21 @@ class ProjectController extends Controller
             'deploy_script' => 'nullable|string'
         ]);
 
+        $deployScript = $request->input('deploy_script') ?? "git pull origin " . $request->input('branch') . "\nnpm run build";
+        $deployScript = str_replace("\r\n", "\n", $deployScript);
+
+        $installScript = $request->input('install_script');
+        if ($installScript) {
+            $installScript = str_replace("\r\n", "\n", $installScript);
+        }
+
         $project = Project::create([
             'server_id' => $server->id,
             'name' => $request->input('name'),
             'repository_url' => $request->input('repository_url'),
             'branch' => $request->input('branch'),
-            'install_script' => $request->input('install_script'),
-            'deploy_script' => $request->input('deploy_script') ?? "git pull origin " . $request->input('branch') . "\nnpm run build",
+            'install_script' => $installScript,
+            'deploy_script' => $deployScript,
             'status' => 'idle'
         ]);
 
@@ -66,7 +74,19 @@ class ProjectController extends Controller
             'deploy_script' => 'nullable|string'
         ]);
 
-        $project->update($request->only('name', 'repository_url', 'branch', 'install_script', 'deploy_script'));
+        $data = $request->only('name', 'repository_url', 'branch');
+        
+        $deployScript = $request->input('deploy_script');
+        if ($deployScript) {
+            $data['deploy_script'] = str_replace("\r\n", "\n", $deployScript);
+        }
+        
+        $installScript = $request->input('install_script');
+        if ($installScript) {
+            $data['install_script'] = str_replace("\r\n", "\n", $installScript);
+        }
+
+        $project->update($data);
 
         return redirect()->route('project.show', $project->id)->with('success', 'Project updated successfully.');
     }
