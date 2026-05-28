@@ -1,0 +1,92 @@
+# ============================================================
+# REPO 1: vps-control-panel (Backend + Gateway)
+# ============================================================
+
+# Exclude agent folder (pushed to separate repo)
+/agent/
+
+# ============================================================
+# LARAVEL BACKEND (/backend)
+# ============================================================
+
+# Environment files (sensitive credentials!)
+backend/.env
+backend/.env.backup
+backend/.env.production
+
+# Composer dependencies
+backend/vendor/
+
+# Laravel cache & compiled files
+backend/bootstrap/cache/*.php
+backend/storage/framework/cache/*
+backend/storage/framework/sessions/*
+backend/storage/framework/testing/*
+backend/storage/framework/views/*
+backend/storage/logs/*
+
+# Public assets storage symlink
+backend/public/storage
+backend/public/hot
+
+# PHPUnit
+backend/.phpunit.result.cache
+backend/.phpunit.cache/
+
+# SQLite (we use MySQL, tapi buat jaga-jaga)
+backend/database/database.sqlite
+backend/database/database.sqlite-journal
+
+# Node (jika ada mix/vite assets)
+backend/node_modules/
+
+# Compiled frontend assets (opsional, uncomment jika mau)
+# backend/public/build/
+# backend/public/css/
+# backend/public/js/
+
+# ============================================================
+# NODE.JS GATEWAY (/gateway)
+# ============================================================
+
+# Node dependencies
+gateway/node_modules/
+
+# Environment files
+gateway/.env
+
+# Logs
+gateway/npm-debug.log*
+gateway/yarn-debug.log*
+gateway/yarn-error.log*
+
+# PM2 logs
+gateway/.pm2/
+
+# ============================================================
+# OS & EDITOR FILES
+# ============================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# JetBrains (PHPStorm, WebStorm)
+.idea/
+*.iml
+
+# Vim
+*.swp
+*.swo
+*~
