@@ -1,5 +1,6 @@
 const { WebSocketServer } = require('ws');
 const http = require('http');
+const https = require('https');
 const url = require('url');
 
 const PORT = process.env.PORT || 3001;
@@ -281,64 +282,50 @@ wss.on('connection', (ws, request) => {
 });
 
 // Helper functions to sync with Laravel API
-function saveMetricsToLaravel(serverId, metrics) {
-  const data = JSON.stringify(metrics);
-  const req = http.request({
-    hostname: '127.0.0.1',
-    port: 8000,
-    path: `/api/servers/${serverId}/metrics`,
-    method: 'POST',
+function sendLaravelRequest(path, method, payload) {
+  const data = JSON.stringify(payload);
+  
+  let parsedUrl;
+  try {
+    parsedUrl = new URL(process.env.LARAVEL_API_URL || 'http://127.0.0.1:8000');
+  } catch (e) {
+    parsedUrl = new URL('http://127.0.0.1:8000');
+  }
+
+  const isHttps = parsedUrl.protocol === 'https:';
+  const client = isHttps ? https : http;
+
+  const options = {
+    hostname: parsedUrl.hostname,
+    port: parsedUrl.port || (isHttps ? 443 : 80),
+    path: path,
+    method: method,
     headers: {
       'Content-Type': 'application/json',
       'Content-Length': Buffer.byteLength(data),
       'Authorization': `Bearer ${AUTH_TOKEN}`
-    }
-  }, (res) => {
-    res.resume(); // consume response
+    },
+    rejectUnauthorized: false
+  };
+
+  const req = client.request(options, (res) => {
+    res.resume();
   });
   req.on('error', () => { }); // Ignore offline errors
   req.write(data);
   req.end();
 }
 
+function saveMetricsToLaravel(serverId, metrics) {
+  sendLaravelRequest(`/api/servers/${serverId}/metrics`, 'POST', metrics);
+}
+
 function notifyLaravelServerStatus(serverId, status) {
-  const data = JSON.stringify({ status });
-  const req = http.request({
-    hostname: '127.0.0.1',
-    port: 8000,
-    path: `/api/servers/${serverId}/status`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(data),
-      'Authorization': `Bearer ${AUTH_TOKEN}`
-    }
-  }, (res) => {
-    res.resume();
-  });
-  req.on('error', () => { });
-  req.write(data);
-  req.end();
+  sendLaravelRequest(`/api/servers/${serverId}/status`, 'POST', { status });
 }
 
 function notifyLaravelDeployFinished(deployId, status, log) {
-  const data = JSON.stringify({ status, log });
-  const req = http.request({
-    hostname: '127.0.0.1',
-    port: 8000,
-    path: `/api/deployments/${deployId}/finish`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'Content-Length': Buffer.byteLength(data),
-      'Authorization': `Bearer ${AUTH_TOKEN}`
-    }
-  }, (res) => {
-    res.resume();
-  });
-  req.on('error', () => { });
-  req.write(data);
-  req.end();
+  sendLaravelRequest(`/api/deployments/${deployId}/finish`, 'POST', { status, log });
 }
 
 server.listen(PORT, '0.0.0.0', () => {
