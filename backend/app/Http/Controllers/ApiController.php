@@ -9,7 +9,12 @@ use App\Models\Project;
 
 class ApiController extends Controller
 {
-    private $secureToken = 'secure-vps-token-12345';
+    private $secureToken;
+
+    public function __construct()
+    {
+        $this->secureToken = env('GATEWAY_TOKEN', 'secure-vps-token-12345');
+    }
 
     private function validateToken(Request $request)
     {

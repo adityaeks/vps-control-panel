@@ -100,8 +100,8 @@ class ProjectController extends Controller
 
         // Send deploy command to WebSocket Gateway API
         try {
-            $response = Http::withToken('secure-vps-token-12345')
-                ->post('http://127.0.0.1:3000/api/command', [
+            $response = Http::withToken(env('GATEWAY_TOKEN', 'secure-vps-token-12345'))
+                ->post(env('GATEWAY_URL', 'http://127.0.0.1:3000') . '/api/command', [
                     'server_id' => $server->id,
                     'action' => 'deploy',
                     'data' => [

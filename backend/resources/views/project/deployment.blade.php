@@ -82,12 +82,13 @@
                     return;
                 }
 
-                const token = 'secure-vps-token-12345';
+                const token = '{{ env("GATEWAY_TOKEN", "secure-vps-token-12345") }}';
+                const gatewayWsUrl = '{{ env("GATEWAY_WS_URL", "ws://127.0.0.1:3000") }}';
                 const serverId = "{{ $project->server_id }}";
                 const deployId = "{{ $deployment->id }}";
                 
                 // Open real-time WS logs bridge
-                this.ws = new WebSocket(`ws://127.0.0.1:3000?role=client&token=${token}&server_id=${serverId}&type=deploy&deployment_id=${deployId}`);
+                this.ws = new WebSocket(`${gatewayWsUrl}?role=client&token=${token}&server_id=${serverId}&type=deploy&deployment_id=${deployId}`);
 
                 this.ws.onmessage = (event) => {
                     try {

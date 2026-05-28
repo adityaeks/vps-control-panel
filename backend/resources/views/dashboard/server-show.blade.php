@@ -201,6 +201,10 @@
 @section('scripts')
 @if($server->status === 'online')
 <script>
+    // Gateway config from .env
+    const GATEWAY_WS_URL = '{{ env("GATEWAY_WS_URL", "ws://127.0.0.1:3000") }}';
+    const GATEWAY_TOKEN = '{{ env("GATEWAY_TOKEN", "secure-vps-token-12345") }}';
+
     // Initialize empty charts for realtime metrics streaming
     const maxDataPoints = 15;
     const labels = Array(maxDataPoints).fill('');
@@ -245,11 +249,11 @@
     const ramChart = new Chart(ramChartCtx, chartConfig('RAM', ramData, '#a855f7')); // purple
 
     // WebSocket metric client bridge
-    const wsToken = 'secure-vps-token-12345';
+    const wsToken = GATEWAY_TOKEN;
     const serverId = "{{ $server->id }}";
     
     // Gateway connection
-    const ws = new WebSocket(`ws://127.0.0.1:3000?role=client&token=${wsToken}&server_id=${serverId}&type=metrics`);
+    const ws = new WebSocket(`${GATEWAY_WS_URL}?role=client&token=${wsToken}&server_id=${serverId}&type=metrics`);
 
     ws.onmessage = (event) => {
         try {

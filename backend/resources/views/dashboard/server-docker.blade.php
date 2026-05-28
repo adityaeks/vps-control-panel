@@ -139,11 +139,12 @@
             ws: null,
 
             init() {
-                const token = 'secure-vps-token-12345';
+                const token = '{{ env("GATEWAY_TOKEN", "secure-vps-token-12345") }}';
+                const gatewayWsUrl = '{{ env("GATEWAY_WS_URL", "ws://127.0.0.1:3000") }}';
                 const serverId = "{{ $server->id }}";
                 
                 // Initialize WebSocket link
-                this.ws = new WebSocket(`ws://127.0.0.1:3000?role=client&token=${token}&server_id=${serverId}&type=terminal`);
+                this.ws = new WebSocket(`${gatewayWsUrl}?role=client&token=${token}&server_id=${serverId}&type=terminal`);
 
                 this.ws.onopen = () => {
                     console.log('Docker Socket bridge connected.');

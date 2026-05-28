@@ -90,11 +90,12 @@
     term.open(document.getElementById('terminal'));
     term.write('Connecting to secure remote terminal bridge...\r\n');
 
-    // Websocket secure link
-    const token = 'secure-vps-token-12345';
+    // Gateway config from .env
+    const token = '{{ env("GATEWAY_TOKEN", "secure-vps-token-12345") }}';
+    const gatewayWsUrl = '{{ env("GATEWAY_WS_URL", "ws://127.0.0.1:3000") }}';
     const serverId = "{{ $server->id }}";
     
-    const ws = new WebSocket(`ws://127.0.0.1:3000?role=client&token=${token}&server_id=${serverId}&type=terminal`);
+    const ws = new WebSocket(`${gatewayWsUrl}?role=client&token=${token}&server_id=${serverId}&type=terminal`);
 
     ws.onopen = () => {
         term.write('Connection established! Welcome to your interactive shell.\r\n\r\n');
