@@ -21,7 +21,7 @@
             <!-- Project Name -->
             <div>
                 <label for="name" class="block text-xs uppercase font-extrabold tracking-widest text-slate-400 mb-2">Project Name</label>
-                <input type="text" id="name" name="name" required value="{{ old('name', 'My Web App') }}"
+                <input type="text" id="name" name="name" required value="{{ old('name', request('name', 'My Web App')) }}"
                        class="w-full bg-slate-900/60 border border-slate-800 focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/30 rounded-xl py-3 px-4 text-sm text-white placeholder-slate-500 transition duration-200 outline-none">
                 @error('name')
                     <p class="text-rose-400 text-xs mt-1 font-semibold">{{ $message }}</p>
@@ -32,7 +32,7 @@
                 <!-- Repository URL -->
                 <div class="md:col-span-2">
                     <label for="repository_url" class="block text-xs uppercase font-extrabold tracking-widest text-slate-400 mb-2">Git Repository URL</label>
-                    <input type="text" id="repository_url" name="repository_url" required value="{{ old('repository_url', 'https://github.com/username/repo.git') }}"
+                    <input type="text" id="repository_url" name="repository_url" required value="{{ old('repository_url', request('repo_url', 'https://github.com/username/repo.git')) }}"
                            class="w-full bg-slate-900/60 border border-slate-800 focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/30 rounded-xl py-3 px-4 text-sm text-white placeholder-slate-500 transition duration-200 outline-none">
                     @error('repository_url')
                         <p class="text-rose-400 text-xs mt-1 font-semibold">{{ $message }}</p>
@@ -58,7 +58,7 @@
                 </div>
                 <textarea id="deploy_script" name="deploy_script" rows="5"
                           class="w-full bg-slate-950/60 border border-slate-800 focus:border-indigo-500/80 focus:ring-1 focus:ring-indigo-500/30 rounded-xl py-3 px-4 text-sm text-slate-300 font-mono placeholder-slate-600 transition duration-200 outline-none"
-                          placeholder="git pull origin main&#10;npm install&#10;npm run build"></textarea>
+                          placeholder="git pull origin main&#10;npm install&#10;npm run build">{{ old('deploy_script', request('name') ? "cd /var/www/html/" . request('name') . "\ngit pull origin main\ncomposer install\nphp artisan migrate --force" : '') }}</textarea>
                 @error('deploy_script')
                     <p class="text-rose-400 text-xs mt-1 font-semibold">{{ $message }}</p>
                 @enderror

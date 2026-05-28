@@ -195,6 +195,64 @@
             </div>
         @endif
     </div>
+
+    <!-- Local Directories Section -->
+    @if(!empty($localDirectories))
+    <div class="glass rounded-3xl border border-slate-800/80 p-6 md:p-8 mt-8">
+        <div class="flex justify-between items-center border-b border-slate-900 pb-5 mb-5">
+            <div>
+                <h2 class="text-xl font-extrabold text-white tracking-tight flex items-center gap-2">
+                    <i class="fa-solid fa-folder-open text-indigo-400 text-lg"></i> Local Directories on VPS
+                </h2>
+                <p class="text-slate-400 text-xs mt-0.5 font-semibold">Physical directories detected in <code class="bg-slate-950 px-1.5 py-0.5 rounded text-indigo-300 font-mono text-[11px]">/var/www/html/</code></p>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            @foreach($localDirectories as $dir)
+                @php
+                    // Check if this directory is already registered as a project
+                    $isRegistered = $projects->contains('name', $dir);
+                @endphp
+                <div class="bg-slate-950/40 hover:bg-slate-900/30 border border-slate-800/80 rounded-2xl p-4 transition group flex flex-col justify-between gap-4">
+                    <div class="flex items-start gap-3">
+                        <div class="h-10 w-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center text-sm transition group-hover:scale-110">
+                            <i class="fa-solid fa-folder"></i>
+                        </div>
+                        <div class="truncate">
+                            <h4 class="text-sm font-bold text-white tracking-tight group-hover:text-indigo-400 transition truncate">{{ $dir }}</h4>
+                            <p class="text-[10px] text-slate-500 font-mono mt-0.5 truncate">/var/www/html/{{ $dir }}</p>
+                        </div>
+                    </div>
+                    
+                    <div class="flex items-center justify-between mt-2 pt-3 border-t border-slate-900/60">
+                        @if($isRegistered)
+                            <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase text-emerald-400">
+                                <i class="fa-solid fa-circle-check"></i> Registered
+                            </span>
+                            @php
+                                $linkedProject = $projects->firstWhere('name', $dir);
+                            @endphp
+                            @if($linkedProject)
+                                <a href="{{ route('project.show', $linkedProject->id) }}" class="text-xs text-indigo-400 hover:text-indigo-300 font-bold transition">
+                                    Manage <i class="fa-solid fa-arrow-right text-[10px] ml-0.5"></i>
+                                </a>
+                            @endif
+                        @else
+                            <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase text-slate-500">
+                                <i class="fa-solid fa-circle-question"></i> Unregistered
+                            </span>
+                            <a href="{{ route('project.create', $server->id) }}?name={{ urlencode($dir) }}&repo_url={{ urlencode('https://github.com/adityaeks/' . $dir . '.git') }}" 
+                               class="inline-flex items-center gap-1 bg-indigo-600/20 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/30 font-bold py-1.5 px-3 rounded-lg text-[11px] transition">
+                                <i class="fa-solid fa-plus text-[9px]"></i> Add Project
+                            </a>
+                        @endif
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+    @endif
 </div>
 @endsection
 

@@ -61,7 +61,16 @@ class DashboardController extends Controller
     {
         $server = Server::findOrFail($id);
         $projects = $server->projects;
-        return view('dashboard.server-show', compact('server', 'projects'));
+        
+        // Scan local directories if on the same VPS node
+        $localDirectories = [];
+        $path = '/var/www/html';
+        if (is_dir($path) && is_readable($path)) {
+            $dirs = glob($path . '/*', GLOB_ONLYDIR);
+            $localDirectories = array_map('basename', $dirs);
+        }
+
+        return view('dashboard.server-show', compact('server', 'projects', 'localDirectories'));
     }
 
     public function editServer($id)
