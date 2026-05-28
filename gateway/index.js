@@ -2,7 +2,7 @@ const { WebSocketServer } = require('ws');
 const http = require('http');
 const url = require('url');
 
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3001;
 const AUTH_TOKEN = process.env.AUTH_TOKEN || 'secure-vps-token-12345';
 
 // Store connections
@@ -18,7 +18,7 @@ const deploymentClients = new Map();
 // Create HTTP server
 const server = http.createServer((req, res) => {
   const parsedUrl = url.parse(req.url, true);
-  
+
   // CORS Headers
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
@@ -119,7 +119,7 @@ wss.on('connection', (ws, request) => {
     ws.on('message', (message) => {
       try {
         const payload = JSON.parse(message);
-        
+
         if (payload.type === 'metrics') {
           // Forward metrics to all listening clients
           const clients = metricClients.get(serverId);
@@ -132,8 +132,8 @@ wss.on('connection', (ws, request) => {
           }
           // Also save in Laravel database via HTTP call
           saveMetricsToLaravel(serverId, payload.data);
-        } 
-        
+        }
+
         else if (payload.type === 'terminal_output') {
           // Forward terminal output to listening clients
           const clients = terminalClients.get(serverId);
@@ -144,8 +144,8 @@ wss.on('connection', (ws, request) => {
               }
             });
           }
-        } 
-        
+        }
+
         else if (payload.type === 'deploy_log') {
           // Forward deploy logs to listening clients
           const deployId = String(payload.deployment_id);
@@ -212,8 +212,8 @@ wss.on('connection', (ws, request) => {
         metricClients.set(serverId, new Set());
       }
       metricClients.get(serverId).add(ws);
-    } 
-    
+    }
+
     else if (type === 'terminal') {
       if (!terminalClients.has(serverId)) {
         terminalClients.set(serverId, new Set());
@@ -225,8 +225,8 @@ wss.on('connection', (ws, request) => {
       if (agent && agent.readyState === ws.OPEN) {
         agent.send(JSON.stringify({ type: 'terminal_start' }));
       }
-    } 
-    
+    }
+
     else if (type === 'deploy' && deployId) {
       if (!deploymentClients.has(deployId)) {
         deploymentClients.set(deployId, new Set());
@@ -296,7 +296,7 @@ function saveMetricsToLaravel(serverId, metrics) {
   }, (res) => {
     res.resume(); // consume response
   });
-  req.on('error', () => {}); // Ignore offline errors
+  req.on('error', () => { }); // Ignore offline errors
   req.write(data);
   req.end();
 }
@@ -316,7 +316,7 @@ function notifyLaravelServerStatus(serverId, status) {
   }, (res) => {
     res.resume();
   });
-  req.on('error', () => {});
+  req.on('error', () => { });
   req.write(data);
   req.end();
 }
@@ -336,11 +336,26 @@ function notifyLaravelDeployFinished(deployId, status, log) {
   }, (res) => {
     res.resume();
   });
-  req.on('error', () => {});
+  req.on('error', () => { });
   req.write(data);
   req.end();
 }
 
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`WebSocket Gateway running on port ${PORT}`);
+});
+
+// Add this after server.listen...
+
+// Health check endpoint for Kubernetes/Docker orchestration
+server.on('request', (req, res) => {
+  if (req.url === '/health') {
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({
+      status: 'ok',
+      service: 'gateway',
+      agents: agents.size
+    }));
+    return;
+  }
 });
