@@ -234,9 +234,19 @@
                                 $linkedProject = $projects->firstWhere('name', $dir);
                             @endphp
                             @if($linkedProject)
-                                <a href="{{ route('project.show', $linkedProject->id) }}" class="text-xs text-indigo-400 hover:text-indigo-300 font-bold transition">
-                                    Manage <i class="fa-solid fa-arrow-right text-[10px] ml-0.5"></i>
-                                </a>
+                                <div class="flex items-center gap-3">
+                                    @if($server->status === 'online')
+                                        <form action="{{ route('project.deploy', $linkedProject->id) }}" method="POST" class="inline">
+                                            @csrf
+                                            <button type="submit" class="bg-indigo-600/30 hover:bg-indigo-600 text-indigo-300 hover:text-white border border-indigo-500/20 hover:border-indigo-500/40 font-bold py-1 px-2.5 rounded-lg text-[10px] transition transform active:scale-95 flex items-center gap-1 shadow-sm">
+                                                <i class="fa-solid fa-rocket text-[9px]"></i> Deploy
+                                            </button>
+                                        </form>
+                                    @endif
+                                    <a href="{{ route('project.show', $linkedProject->id) }}" class="text-xs text-indigo-400 hover:text-indigo-300 font-bold transition flex items-center gap-0.5">
+                                        Manage <i class="fa-solid fa-chevron-right text-[9px]"></i>
+                                    </a>
+                                </div>
                             @endif
                         @else
                             <span class="inline-flex items-center gap-1 text-[10px] font-extrabold uppercase text-slate-500">
